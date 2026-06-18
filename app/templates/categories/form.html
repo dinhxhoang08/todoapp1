@@ -1,0 +1,20 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ 'Edit Category' if category else 'New Category' }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<form hx-{{ 'put' if category else 'post' }}="/categories/{% if category %}{{ category.id }}{% endif %}" hx-target="#category-list" hx-swap="outerHTML">
+    <div class="modal-body">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name *</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ category.name if category else '' }}" maxlength="100" required>
+        </div>
+        <div class="mb-3">
+            <label for="color" class="form-label">Color</label>
+            <input type="color" class="form-control form-control-color" id="color" name="color" value="{{ category.color if category else '#0d6efd' }}">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">{{ 'Update' if category else 'Create' }}</button>
+    </div>
+</form>

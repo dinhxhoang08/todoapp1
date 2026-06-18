@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Tasks - Todo App{% endblock %}
+{% block head_extra %}
+<style>
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Tasks</h2>
+        <a href="/tasks/new" class="btn btn-primary" hx-get="/tasks/new" hx-target="#modal-container" hx-trigger="click" hx-swap="innerHTML" data-bs-toggle="modal" data-bs-target="#taskModal">
+            <i class="bi bi-plus-circle me-2"></i>New Task
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-2" hx-get="/tasks/task_rows" hx-target="#task-table" hx-trigger="change, keyup delay:500ms" hx-swap="innerHTML">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select" hx-trigger="change" hx-get="/tasks/task_rows" hx-target="#task-table">
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="">All</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search_query" class="form-control" placeholder="Search tasks...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sort By</label>
+                    <select name="sort_by" class="form-select">
+                        <option value="created_at">Created Date</option>
+                        <option value="due_date">Due Date</option>
+                        <option value="priority">Priority</option>
+                        <option value="title">Title</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Table -->
+    <div id="task-table">
+        {% include "tasks/task_rows.html" %}
+    </div>
+</div>
+
+<!-- Modal Container -->
+<div class="modal fade" id="taskModal" tabindex="-1" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="modal-container">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border" role="status"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

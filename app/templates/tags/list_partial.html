@@ -1,0 +1,16 @@
+{% if tags %}
+{% for tag in tags %}
+<span class="tag-item d-inline-block me-2 mb-2">
+    <span class="badge fs-6" style="background-color: {{ tag.color or '#6c757d' }}">
+        {{ tag.name }}
+        <span class="ms-1 opacity-75">({{ tag.task_count }})</span>
+    </span>
+    <button class="btn btn-sm btn-outline-danger border-0" hx-delete="/tags/{{ tag.id }}"
+            hx-target="#tag-list" hx-swap="outerHTML" hx-confirm="Delete tag '{{ tag.name }}'?">
+        <i class="bi bi-x"></i>
+    </button>
+</span>
+{% endfor %}
+{% else %}
+<p class="text-muted text-center py-3">No tags yet</p>
+{% endif %}

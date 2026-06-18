@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Todo App{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Dashboard</h2>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total Tasks</h6>
+                            <h2 class="mb-0">{{ stats.total_tasks }}</h2>
+                        </div>
+                        <i class="bi bi-list-task fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Completed</h6>
+                            <h2 class="mb-0">{{ stats.completed_tasks }}</h2>
+                        </div>
+                        <i class="bi bi-check-circle fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Pending</h6>
+                            <h2 class="mb-0">{{ stats.pending_tasks }}</h2>
+                        </div>
+                        <i class="bi bi-clock fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Overdue</h6>
+                            <h2 class="mb-0">{{ stats.overdue_tasks }}</h2>
+                        </div>
+                        <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <!-- Completion Rate -->
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Completion Rate</h6>
+                    <div class="display-6 fw-bold text-primary">{{ "%.1f"|format(stats.completion_rate) }}%</div>
+                    <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: {{ stats.completion_rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Tasks by Status</h6>
+                    <canvas id="statusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Tasks by Priority</h6>
+                    <canvas id="priorityChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Recent Activity -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Recent Activity</h6>
+                    {% if stats.recent_activity %}
+                    <ul class="list-group list-group-flush">
+                        {% for act in stats.recent_activity %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ act.action|capitalize }}</strong>
+                                {% if act.entity_type %}
+                                <span class="text-muted">— {{ act.entity_type }}{% if act.details %} ({{ act.details }}){% endif %}</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ act.created_at.strftime('%b %d, %H:%M') }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <a href="/tasks/new" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>New Task
+                        </a>
+                        <a href="/export/csv" class="btn btn-outline-secondary">
+                            <i class="bi bi-download me-2"></i>Export CSV
+                        </a>
+                        <a href="/export/excel" class="btn btn-outline-secondary">
+                            <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusData = {{ stats.tasks_by_status | tojson }};
+    const priorityData = {{ stats.tasks_by_priority | tojson }};
+
+    const statusColors = ['#6c757d', '#ffc107', '#198754', '#6c757d'];
+    new Chart(document.getElementById('statusChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(statusData),
+            datasets: [{
+                data: Object.values(statusData),
+                backgroundColor: statusColors
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    const priorityColors = ['#198754', '#ffc107', '#fd7e14', '#dc3545'];
+    new Chart(document.getElementById('priorityChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(priorityData),
+            datasets: [{
+                data: Object.values(priorityData),
+                backgroundColor: priorityColors
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+});
+</script>
+{% endblock %}

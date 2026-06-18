@@ -1,0 +1,99 @@
+<div class="table-responsive">
+    {% if tasks %}
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Category</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr class="fade-in" style="animation-delay: {{ loop.index * 50 }}ms">
+                <td>
+                    <div class="fw-semibold">{{ task.title[:60] }}{% if task.title|length > 60 %}…{% endif %}</div>
+                    {% if task.tags %}
+                    <div>
+                        {% for tag in task.tags %}
+                        <span class="badge bg-secondary">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.status.value == 'completed' %}
+                    <span class="badge bg-success">Completed</span>
+                    {% elif task.status.value == 'in_progress' %}
+                    <span class="badge bg-warning text-dark">In Progress</span>
+                    {% elif task.status.value == 'archived' %}
+                    <span class="badge bg-secondary">Archived</span>
+                    {% else %}
+                    <span class="badge bg-light text-dark border">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.priority.value == 'urgent' %}
+                    <span class="badge bg-danger">Urgent</span>
+                    {% elif task.priority.value == 'high' %}
+                    <span class="badge bg-warning text-dark">High</span>
+                    {% elif task.priority.value == 'medium' %}
+                    <span class="badge bg-primary">Medium</span>
+                    {% else %}
+                    <span class="badge bg-success">Low</span>
+                    {% endif %}
+                </td>
+                <td>{{ task.category.name if task.category else '-' }}</td>
+                <td>
+                    {% if task.due_date %}
+                    <span class="{% if task.due_date < now() and task.status.value != 'completed' %}text-danger fw-bold{% endif %}">
+                        {{ task.due_date.strftime('%b %d, %Y') }}
+                    </span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        {% if task.status.value != 'completed' %}
+                        <a href="#" class="btn btn-outline-success" hx-post="/tasks/{{ task.id }}/complete" hx-target="#task-table" hx-swap="innerHTML" title="Complete">
+                            <i class="bi bi-check-lg"></i>
+                        </a>
+                        {% endif %}
+                        {% if task.status.value != 'archived' %}
+                        <a href="#" class="btn btn-outline-secondary" hx-post="/tasks/{{ task.id }}/archive" hx-target="#task-table" hx-swap="innerHTML" title="Archive">
+                            <i class="bi bi-archive"></i>
+                        </a>
+                        {% else %}
+                        <a href="#" class="btn btn-outline-info" hx-post="/tasks/{{ task.id }}/restore" hx-target="#task-table" hx-swap="innerHTML" title="Restore">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                        {% endif %}
+                        <a href="#" class="btn btn-outline-primary" hx-get="/tasks/{{ task.id }}/edit" hx-target="#modal-container" hx-trigger="click" data-bs-toggle="modal" data-bs-target="#taskModal" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-warning" hx-post="/tasks/{{ task.id }}/duplicate" hx-target="#task-table" hx-swap="innerHTML" title="Duplicate">
+                            <i class="bi bi-copy"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-danger" hx-delete="/tasks/{{ task.id }}" hx-target="#task-table" hx-swap="innerHTML" hx-confirm="Delete this task?" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox display-4 d-block mb-3"></i>
+        <p class="fs-5">No tasks found</p>
+        <a href="/tasks/new" class="btn btn-primary" hx-get="/tasks/new" hx-target="#modal-container" hx-trigger="click" data-bs-toggle="modal" data-bs-target="#taskModal">
+            Create your first task
+        </a>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Tags - Todo App{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Tags</h2>
+        <button class="btn btn-primary" hx-get="/tags/new" hx-target="#modal-container" hx-trigger="click" data-bs-toggle="modal" data-bs-target="#tagModal">
+            <i class="bi bi-plus-circle me-2"></i>New Tag
+        </button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body" id="tag-list">
+            {% include "tags/list_partial.html" %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tagModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modal-container">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border" role="status"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

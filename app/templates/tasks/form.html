@@ -1,0 +1,73 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{ 'Edit Task' if task else 'New Task' }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<form hx-{{ 'put' if task else 'post' }}="/tasks/{% if task %}{{ task.id }}{% endif %}" hx-target="#task-table" hx-swap="innerHTML">
+    <div class="modal-body">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title *</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ task.title if task else '' }}" maxlength="255" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3">{{ task.description if task else '' }}</textarea>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="priority" class="form-label">Priority</label>
+                <select class="form-select" id="priority" name="priority">
+                    <option value="low" {% if task and task.priority.value == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if not task or task.priority.value == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if task and task.priority.value == 'high' %}selected{% endif %}>High</option>
+                    <option value="urgent" {% if task and task.priority.value == 'urgent' %}selected{% endif %}>Urgent</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="pending" {% if not task or task.status.value == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="in_progress" {% if task and task.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if task and task.status.value == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="archived" {% if task and task.status.value == 'archived' %}selected{% endif %}>Archived</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="due_date" class="form-label">Due Date</label>
+                <input type="date" class="form-control" id="due_date" name="due_date" value="{{ task.due_date.strftime('%Y-%m-%d') if task and task.due_date else '' }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="category_id" class="form-label">Category</label>
+                <select class="form-select" id="category_id" name="category_id">
+                    <option value="">None</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if task and task.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Tags</label>
+                <div class="tag-checkbox-group" style="max-height:120px;overflow-y:auto;border:1px solid #dee2e6;border-radius:0.375rem;padding:0.5rem;">
+                    {% for tag in tags %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="tag_ids" value="{{ tag.id }}"
+                            id="tag_{{ tag.id }}"
+                            {% if task and tag in task.tags %}checked{% endif %}>
+                        <label class="form-check-label" for="tag_{{ tag.id }}">
+                            <span class="badge" style="background-color: {{ tag.color or '#6c757d' }}">{{ tag.name }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">{{ 'Update' if task else 'Create' }}</button>
+    </div>
+</form>
+<script>
+    document.getElementById('due_date').value = '';
+</script>

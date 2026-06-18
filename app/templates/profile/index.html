@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Profile - Todo App{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Profile</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Update Profile</h5>
+                    <form action="/auth/profile/update" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Change Password</h5>
+                    <form action="/auth/change-password" method="post">
+                        <div class="mb-3">
+                            <label for="old_password" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="old_password" name="old_password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" minlength="8" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
